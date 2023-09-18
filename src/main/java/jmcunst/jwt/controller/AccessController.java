@@ -2,7 +2,6 @@ package jmcunst.jwt.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jmcunst.jwt.dto.ApiResponse;
 import jmcunst.jwt.service.AccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
