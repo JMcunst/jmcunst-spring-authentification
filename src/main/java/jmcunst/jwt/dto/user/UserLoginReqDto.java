@@ -9,15 +9,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserLoginReqDto {
-    @NotNull(message = "학번을 입력하세요.")
-    private String num;
+    @NotNull(message = "아이디를 입력하세요.")
+    private String uid;
 
     @NotNull(message = "비밀번호를 입력하세요.")
     private String password;
 
     @Builder
-    public UserLoginReqDto(String num, String password){
-        this.num = num;
+    public UserLoginReqDto(String uid, String password){
+        this.uid = uid;
         this.password = password;
     }
 }

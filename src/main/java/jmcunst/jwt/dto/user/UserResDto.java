@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResDto {
     Long id;
-    String num;
+    String uid;
     String name;
     String email;
     String department;
@@ -21,7 +21,7 @@ public class UserResDto {
     public static UserResDto from(Member user){
         return UserResDto.builder()
                 .id(user.getId())
-                .num(user.getNum())
+                .uid(user.getUid())
                 .name(user.getName())
                 .email(user.getEmail())
                 .department(user.getDepartment())

@@ -25,7 +25,6 @@ public class UserController {
     @Operation(summary = "회원 가입")
     @PostMapping("/signup")
     public BaseResponse<UserCreateResDto> signUp(@Valid @RequestBody UserCreateReqDto userCreateReqDto, BindingResult br) {
-
         // 형식적 validation
         if (br.hasErrors()){
             String errorName = br.getAllErrors().get(0).getDefaultMessage(); //dto에 선언한 에러
@@ -58,10 +57,10 @@ public class UserController {
     }
 
     @Operation(summary = "사용자 조회")
-    @GetMapping("/{num}")
-    public BaseResponse<UserResDto> getUser(@PathVariable("num") String num) {
+    @GetMapping("/{uid}")
+    public BaseResponse<UserResDto> getUser(@PathVariable("uid") String uid) {
         try {
-            return new BaseResponse<>(userService.getUser(num));
+            return new BaseResponse<>(userService.getUser(uid));
         } catch(BaseException e){
             return new BaseResponse<>(e.getStatus());
         }

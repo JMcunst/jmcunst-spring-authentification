@@ -26,14 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 import static jmcunst.jwt.common.BaseResponseStatus.*;
-import static jmcunst.jwt.common.BaseResponseStatus.INVALID_USER_NUM;
+import static jmcunst.jwt.common.BaseResponseStatus.INVALID_USER_UID;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
 @Log4j2
 public class UserWebService {
-    private final MemberRepository userRepository;
+    private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
     private final WebDriverUtil webDriverUtil;
@@ -43,12 +43,12 @@ public class UserWebService {
 
     @Transactional
     public UserCreateResDto signUpUser(UserCreateReqDto userCreateReqDto) throws BaseException {
-        validateDuplicateUser(userCreateReqDto.getNum());
+        validateDuplicateUser(userCreateReqDto.getUid());
 
         webDriverUtil.chrome();
-        JSONObject userInfo = webDriverUtil.getUserInfoObj(userCreateReqDto.getNum(), userCreateReqDto.getPassword());
-        Member user = Member.builder()
-                .num(userCreateReqDto.getNum())
+        JSONObject userInfo = webDriverUtil.getUserInfoObj(userCreateReqDto.getUid(), userCreateReqDto.getPassword());
+        Member member = Member.builder()
+                .uid(userCreateReqDto.getUid())
                 .password(passwordEncoder.encode(userCreateReqDto.getPassword()))
                 .role(userCreateReqDto.getRole() == 0 ? Role.STUDENT : Role.PROFESSOR)
                 .name(userInfo.get("givenName").toString())
@@ -58,15 +58,15 @@ public class UserWebService {
                 .contact(userInfo.get("mobilePhone").toString())
                 .build();
 
-        userRepository.save(user);
+        memberRepository.save(member);
 
-        return UserCreateResDto.from(user);
+        return UserCreateResDto.from(member);
     }
 
 
     // 유저 중복 확인
-    private void validateDuplicateUser(String num) throws BaseException {
-        Optional<Member> findUsers = userRepository.findByNum(num);
+    private void validateDuplicateUser(String uid) throws BaseException {
+        Optional<Member> findUsers = memberRepository.findByUid(uid);
         if (!findUsers.isEmpty()){
             throw new BaseException(USERS_DUPLICATED_NUM);
         }
@@ -77,7 +77,7 @@ public class UserWebService {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            userLoginReqDto.getNum(),
+                            userLoginReqDto.getUid(),
                             userLoginReqDto.getPassword()
                     )
             );
@@ -95,13 +95,13 @@ public class UserWebService {
         }
     }
 
-    public UserResDto getUser(String num) {
-        Optional<Member> users = userRepository.findByNum(num);
-        Member user = users.orElseThrow(() -> {
-            log.error(INVALID_USER_NUM.getMessage());
-            return  new BaseException(INVALID_USER_NUM);
+    public UserResDto getUser(String uid) {
+        Optional<Member> members = memberRepository.findByUid(uid);
+        Member member = members.orElseThrow(() -> {
+            log.error(INVALID_USER_UID.getMessage());
+            return  new BaseException(INVALID_USER_UID);
         });
 
-        return UserResDto.from(user);
+        return UserResDto.from(member);
     }
 }

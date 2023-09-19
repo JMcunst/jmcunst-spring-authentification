@@ -54,7 +54,7 @@ public class WebDriverUtil {
         driver.manage().timeouts().pageLoadTimeout(30, TimeUnit.SECONDS);
     }
 
-    public JSONObject getUserInfoObj(String num, String password) throws BaseException {
+    public JSONObject getUserInfoObj(String uid, String password) throws BaseException {
         try{
             driver.get(url);
             driver.manage().timeouts().implicitlyWait(1000, TimeUnit.MILLISECONDS);
@@ -62,7 +62,7 @@ public class WebDriverUtil {
             driver.findElement(By.id("id")).click();
             driver.manage().timeouts().implicitlyWait(1000, TimeUnit.MILLISECONDS);
             driver.findElement(By.id("id")).click();
-            driver.findElement(By.id("id")).sendKeys(num);
+            driver.findElement(By.id("id")).sendKeys(uid);
             driver.findElement(By.id("password")).sendKeys(password);
             driver.findElement(By.xpath("//*[@id=\"loginBtn\"]")).click();
 

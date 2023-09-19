@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.redis.core.RedisHash;
 
 @Entity
 @Getter
@@ -14,7 +15,7 @@ public class Member extends BaseTimeEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String num;
+    private String uid;
 
     @Column(nullable = false)
     private String password;
@@ -31,8 +32,8 @@ public class Member extends BaseTimeEntity{
 
 
     @Builder
-    public Member(String num, String password, String name, String email, String profileUrl, String department, String contact, Role role){
-        this.num = num;
+    public Member(String uid, String password, String name, String email, String profileUrl, String department, String contact, Role role){
+        this.uid = uid;
         this.password = password;
         this.name = name;
         this.email = email;
@@ -46,7 +47,6 @@ public class Member extends BaseTimeEntity{
         return this.role.getKey();
     }
 
-    //==비지니스 로직==//
     public Member updateProfile(String name, String profileUrl){
         this.name = name;
         this.profileUrl = profileUrl;

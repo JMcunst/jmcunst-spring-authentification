@@ -9,16 +9,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserCreateReqDto {
-    @NotNull(message = "학번을 입력하세요.")
-    private String num;
+    @NotNull(message = "아이디를 입력하세요.")
+    private String uid;
 
     @NotNull(message = "비밀번호를 입력하세요.")
     private String password;
     private int role;
 
     @Builder
-    public UserCreateReqDto(String num, String password, int role){
-        this.num = num;
+    public UserCreateReqDto(String uid, String password, int role){
+        this.uid = uid;
         this.password = password;
         this.role = role;
     }

@@ -30,7 +30,7 @@ import static jmcunst.jwt.common.BaseResponseStatus.*;
 @Service
 @Log4j2
 public class UserService {
-    private final MemberRepository userRepository;
+    private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
@@ -39,25 +39,26 @@ public class UserService {
 
     @Transactional
     public UserCreateResDto signUpUser(UserCreateReqDto userCreateReqDto) throws BaseException {
-        validateDuplicateUser(userCreateReqDto.getNum());
+        System.out.println("SIGN-UP");
+        validateDuplicateUser(userCreateReqDto.getUid());
 
-        Member user = Member.builder()
-                .num(userCreateReqDto.getNum())
+        Member member = Member.builder()
+                .uid(userCreateReqDto.getUid())
                 .password(passwordEncoder.encode(userCreateReqDto.getPassword()))
                 .role(userCreateReqDto.getRole() == 0 ? Role.STUDENT : Role.PROFESSOR)
                 .name("테스터")
                 .profileUrl(null)
                 .build();
 
-        userRepository.save(user);
+        memberRepository.save(member);
 
-        return UserCreateResDto.from(user);
+        return UserCreateResDto.from(member);
     }
 
 
     // 유저 중복 확인
-    private void validateDuplicateUser(String num) throws BaseException {
-        Optional<Member> findUsers = userRepository.findByNum(num);
+    private void validateDuplicateUser(String uid) throws BaseException {
+        Optional<Member> findUsers = memberRepository.findByUid(uid);
         if (!findUsers.isEmpty()){
             throw new BaseException(USERS_DUPLICATED_NUM);
         }
@@ -68,7 +69,7 @@ public class UserService {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            userLoginReqDto.getNum(),
+                            userLoginReqDto.getUid(),
                             userLoginReqDto.getPassword()
                     )
             );
@@ -86,13 +87,13 @@ public class UserService {
         }
     }
 
-    public UserResDto getUser(String num) {
-        Optional<Member> users = userRepository.findByNum(num);
-        Member user = users.orElseThrow(() -> {
-            log.error(INVALID_USER_NUM.getMessage());
-            return  new BaseException(INVALID_USER_NUM);
+    public UserResDto getUser(String uid) {
+        Optional<Member> members = memberRepository.findByUid(uid);
+        Member member = members.orElseThrow(() -> {
+            log.error(INVALID_USER_UID.getMessage());
+            return new BaseException(INVALID_USER_UID);
         });
 
-        return UserResDto.from(user);
+        return UserResDto.from(member);
     }
 }

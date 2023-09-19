@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.Set;
 
-import static jmcunst.jwt.common.BaseResponseStatus.INVALID_USER_NUM;
+import static jmcunst.jwt.common.BaseResponseStatus.INVALID_USER_UID;
 
 @Service
 @Log4j2
@@ -22,11 +22,11 @@ public class MemberDetailServiceImpl implements UserDetailsService {
     private MemberRepository memberRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String num) throws BaseException {
-        Member user = memberRepository.findByNum(num)
+    public UserDetails loadUserByUsername(String uid) throws BaseException {
+        Member member = memberRepository.findByUid(uid)
                 .orElseThrow(() -> {
-                    log.error(INVALID_USER_NUM.getMessage());
-                    return new BaseException(INVALID_USER_NUM);
+                    log.error(INVALID_USER_UID.getMessage());
+                    return new BaseException(INVALID_USER_UID);
                 });
 
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
@@ -35,6 +35,6 @@ public class MemberDetailServiceImpl implements UserDetailsService {
                 .security
                 .core
                 .userdetails
-                .User(user.getNum(), user.getPassword(), grantedAuthorities);
+                .User(member.getUid(), member.getPassword(), grantedAuthorities);
     }
 }
