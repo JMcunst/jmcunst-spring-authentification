@@ -6,7 +6,6 @@ import jmcunst.jwt.dto.TokenDto;
 import jmcunst.jwt.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +14,6 @@ import static jmcunst.jwt.common.BaseResponseStatus.NOT_EXIST_REFRESH_JWT;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
 
     private final RedisTemplate<String, String> redisTemplate;

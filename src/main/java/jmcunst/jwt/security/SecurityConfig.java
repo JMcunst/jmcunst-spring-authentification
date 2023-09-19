@@ -1,5 +1,8 @@
 package jmcunst.jwt.security;
 
+import jmcunst.jwt.utils.JwtAccessDeniedHandler;
+import jmcunst.jwt.utils.JwtAuthenticationEntryPoint;
+import jmcunst.jwt.utils.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/sign-up", "/sign-in", "/access-test"};
+    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final String[] allowedUrls = {"/", "/swagger-ui/**", "/v3/**", "/api/users/login", "/api/users/signup", "/access-test"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -31,7 +37,13 @@ public class SecurityConfig {
                 )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                );
+                )
+                .exceptionHandling(
+                        (exceptionHandling) ->
+                                exceptionHandling
+                                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                ).apply(new JwtSecurityConfig(jwtTokenProvider));
 
         return httpSecurity.build();
     }
