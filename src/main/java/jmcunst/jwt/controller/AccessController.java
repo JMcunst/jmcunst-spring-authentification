@@ -2,6 +2,7 @@ package jmcunst.jwt.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jmcunst.jwt.common.BaseResponse;
 import jmcunst.jwt.service.AccessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,7 +18,7 @@ public class AccessController {
 
     @Operation(summary = "접속 테스트")
     @GetMapping("/access-test")
-    public ApiResponse access() {
-        return ApiResponse.success(accessService.accessTest());
+    public String access() {
+        return "SUCCESS ACCESS TEST";
     }
 }
