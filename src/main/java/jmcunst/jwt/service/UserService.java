@@ -1,0 +1,98 @@
+package jmcunst.jwt.service;
+
+import jmcunst.jwt.common.BaseException;
+import jmcunst.jwt.dto.TokenDto;
+import jmcunst.jwt.dto.user.UserCreateReqDto;
+import jmcunst.jwt.dto.user.UserCreateResDto;
+import jmcunst.jwt.dto.user.UserLoginReqDto;
+import jmcunst.jwt.dto.user.UserResDto;
+import jmcunst.jwt.entity.Member;
+import jmcunst.jwt.entity.Role;
+import jmcunst.jwt.repository.MemberRepository;
+import jmcunst.jwt.utils.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
+
+import static jmcunst.jwt.common.BaseResponseStatus.*;
+
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+@Service
+@Log4j2
+public class UserService {
+    private final MemberRepository userRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Transactional
+    public UserCreateResDto signUpUser(UserCreateReqDto userCreateReqDto) throws BaseException {
+        validateDuplicateUser(userCreateReqDto.getNum());
+
+        Member user = Member.builder()
+                .num(userCreateReqDto.getNum())
+                .password(passwordEncoder.encode(userCreateReqDto.getPassword()))
+                .role(userCreateReqDto.getRole() == 0 ? Role.STUDENT : Role.PROFESSOR)
+                .name("테스터")
+                .profileUrl(null)
+                .build();
+
+        userRepository.save(user);
+
+        return UserCreateResDto.from(user);
+    }
+
+
+    // 유저 중복 확인
+    private void validateDuplicateUser(String num) throws BaseException {
+        Optional<Member> findUsers = userRepository.findByNum(num);
+        if (!findUsers.isEmpty()){
+            throw new BaseException(USERS_DUPLICATED_NUM);
+        }
+    }
+
+    @Transactional
+    public TokenDto login(UserLoginReqDto userLoginReqDto) throws BaseException {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            userLoginReqDto.getNum(),
+                            userLoginReqDto.getPassword()
+                    )
+            );
+
+            TokenDto tokenDto = new TokenDto(
+                    jwtTokenProvider.createAccessToken(authentication),
+                    jwtTokenProvider.createRefreshToken(authentication)
+            );
+
+            return tokenDto;
+
+        }catch(BadCredentialsException e){
+            log.error(INVALID_USER_PW.getMessage());
+            throw new BaseException(INVALID_USER_PW);
+        }
+    }
+
+    public UserResDto getUser(String num) {
+        Optional<Member> users = userRepository.findByNum(num);
+        Member user = users.orElseThrow(() -> {
+            log.error(INVALID_USER_NUM.getMessage());
+            return  new BaseException(INVALID_USER_NUM);
+        });
+
+        return UserResDto.from(user);
+    }
+}
