@@ -39,7 +39,6 @@ public class UserService {
 
     @Transactional
     public UserCreateResDto signUpUser(UserCreateReqDto userCreateReqDto) throws BaseException {
-        System.out.println("SIGN-UP");
         validateDuplicateUser(userCreateReqDto.getUid());
 
         Member member = Member.builder()
